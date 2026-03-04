@@ -16,7 +16,10 @@ import { ArchiverZipService } from '#/infrastructure/services/zip/archiver-zip.s
 export function bindServices(container: Container) {
     container.bind<IStorageService>(TYPES.StorageService).to(S3StorageService).inSingletonScope();
     container.bind<IQueueProviderService>(TYPES.QueueProviderService).to(SQSQueueProviderService).inSingletonScope();
-    container.bind<IVideoExtractorService>(TYPES.VideoExtractor).to(FfmpegVideoExtractorService).inSingletonScope();
+    container
+        .bind<IVideoExtractorService>(TYPES.VideoExtractorService)
+        .to(FfmpegVideoExtractorService)
+        .inSingletonScope();
     container.bind<IZipService>(TYPES.ZipService).to(ArchiverZipService).inSingletonScope();
 
     container

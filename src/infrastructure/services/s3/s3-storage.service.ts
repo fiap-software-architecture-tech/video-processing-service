@@ -1,4 +1,6 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
+
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { inject, injectable } from 'inversify';
 
 import { StorageDTO } from '#/domain/services/dto/storage.dto';
@@ -27,8 +29,24 @@ export class S3StorageService implements IStorageService {
                 Key: request.key,
                 Body: request.body,
                 ContentType: request.contentType,
+                ContentLength: request.contentLength,
             }),
         );
         this.logger.info('File uploaded to S3', { key: request.key });
+    }
+
+    async download(key: string): Promise<Readable> {
+        this.logger.info('Downloading file from S3', { key });
+
+        const response = await this.s3Client.send(
+            new GetObjectCommand({
+                Bucket: env.AWS_BUCKET_NAME,
+                Key: key,
+            }),
+        );
+
+        this.logger.info('File downloaded from S3', { key });
+
+        return response.Body as Readable;
     }
 }

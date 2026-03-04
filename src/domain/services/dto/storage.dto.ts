@@ -4,4 +4,5 @@ export interface StorageDTO {
     key: string;
     body: Buffer | Readable;
     contentType: string;
+    contentLength?: number;
 }

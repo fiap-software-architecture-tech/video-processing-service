@@ -26,7 +26,7 @@ export class ProcessVideoUseCase implements IProcessVideoUseCase {
         @inject(TYPES.QueueProviderService) private readonly queueProviderService: IQueueProviderService,
     ) {}
 
-    async execute(request: any): Promise<any> {
+    async execute(request: any): Promise<void> {
         const workDir = join(tmpdir(), `video-${randomUUID()}`);
         const videoPath = join(workDir, 'input.mp4');
 

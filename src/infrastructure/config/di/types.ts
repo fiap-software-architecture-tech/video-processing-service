@@ -5,5 +5,7 @@ export const TYPES = {
     // Services
     StorageService: Symbol.for('StorageService'),
     QueueProviderService: Symbol.for('QueueProviderService'),
+    VideoExtractor: Symbol.for('VideoExtractor'),
+    ZipService: Symbol.for('ZipService'),
     Logger: Symbol.for('Logger'),
 } as const;

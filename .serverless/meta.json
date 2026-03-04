@@ -1,0 +1,97 @@
+{
+  "/Users/fosb/Documents/estudos/Hackaton/video-processing-service/serverless.yml": {
+    "versionFramework": "4.33.0",
+    "servicePath": "/Users/fosb/Documents/estudos/Hackaton/video-processing-service/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "video-processing-service",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs20.x",
+        "region": "us-east-1",
+        "environment": {
+          "AWS_REGION": "us-east-1",
+          "AWS_ENDPOINT": "http://localhost:4566",
+          "AWS_BUCKET_NAME": "video-bucket",
+          "AWS_SQS_URL": "http://localhost:4566/000000000000/video-status-queue",
+          "IS_LOCAL": "true"
+        },
+        "stage": "dev",
+        "versionFunctions": true
+      },
+      "plugins": [
+        "serverless-localstack"
+      ],
+      "functions": {
+        "processVideo": {
+          "handler": "dist/index.handler",
+          "events": [
+            {
+              "sqs": {
+                "arn": {
+                  "Fn::GetAtt": [
+                    "VideoProcessingQueue",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ],
+          "name": "video-processing-service-dev-processVideo"
+        }
+      },
+      "resources": {
+        "Resources": {
+          "VideoProcessingQueue": {
+            "Type": "AWS::SQS::Queue",
+            "Properties": {
+              "QueueName": "video-processing-queue"
+            }
+          }
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs20.x",
+      "region": "us-east-1",
+      "environment": {
+        "AWS_REGION": "us-east-1",
+        "AWS_ENDPOINT": "http://localhost:4566",
+        "AWS_BUCKET_NAME": "video-bucket",
+        "AWS_SQS_URL": "http://localhost:4566/000000000000/video-status-queue",
+        "IS_LOCAL": "true"
+      },
+      "stage": "dev",
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: video-processing-service\n\nprovider:\n    name: aws\n    runtime: nodejs20.x\n    region: us-east-1\n    environment:\n        AWS_REGION: ${env:AWS_REGION}\n        AWS_ENDPOINT: ${env:AWS_ENDPOINT}\n        AWS_BUCKET_NAME: ${env:AWS_BUCKET_NAME}\n        AWS_SQS_URL: ${env:AWS_SQS_URL}\n\nplugins:\n  - serverless-localstack\n\nfunctions:\n    processVideo:\n        handler: dist/index.handler\n        events:\n            - sqs:\n                  arn:\n                      Fn::GetAtt:\n                          - VideoProcessingQueue\n                          - Arn\n\nresources:\n    Resources:\n        VideoProcessingQueue:\n            Type: AWS::SQS::Queue\n            Properties:\n                QueueName: video-processing-queue\n",
+    "command": [
+      "invoke",
+      "local"
+    ],
+    "options": {
+      "function": "processVideo",
+      "path": "event.json"
+    },
+    "orgId": "0aa86251-05cf-43c5-a0f1-b3f2e0bb8475",
+    "orgName": "ofabiosb",
+    "userId": "vbDt8pBSf9K8t1FYbJ",
+    "userName": "ofabiosb",
+    "serviceProviderAwsAccountId": "000000000000",
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}

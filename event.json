@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "1",
+      "receiptHandle": "handle-1",
+      "body": "{\"data\":{\"jobId\":\"1\",\"key\":\"video.mp4\",\"eventType\":\"PROCESSING\"}}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1709500000000",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1709500000000"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:000000000000:video-processing-queue",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}

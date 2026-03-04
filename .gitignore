@@ -1,0 +1,10 @@
+node_modules
+dist
+reports
+.DS_Store
+.node-version
+.env
+*.zip
+.idea/
+.docker
+test-report

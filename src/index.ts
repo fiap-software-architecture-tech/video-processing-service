@@ -20,7 +20,8 @@ export async function handler(event: SQSEvent) {
             const body = JSON.parse(record.body);
 
             try {
-                const dto: VideoProcessDTO = body.data;
+                // A mensagem vem diretamente do video-core sem wrapper "data"
+                const dto: VideoProcessDTO = body;
                 logger.info('Processing video', { jobId: dto.jobId });
                 await useCase.execute(dto);
                 logger.info('Video processed successfully', { jobId: dto.jobId });

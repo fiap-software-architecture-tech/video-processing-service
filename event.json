@@ -3,7 +3,7 @@
     {
       "messageId": "1",
       "receiptHandle": "handle-1",
-      "body": "{\"data\":{\"jobId\":\"118d2077-67b3-4b93-b21f-82260b407769\",\"key\":\"processing/1837b255-f5fa-427c-a605-f9eadb7a1b80.mp4\",\"eventType\":\"PROCESSING\"}}",
+      "body": "{\"jobId\":\"118d2077-67b3-4b93-b21f-82260b407769\",\"key\":\"processing/1837b255-f5fa-427c-a605-f9eadb7a1b80.mp4\",\"eventType\":\"PROCESSING\"}",
       "attributes": {
         "ApproximateReceiveCount": "1",
         "SentTimestamp": "1709500000000",

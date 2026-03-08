@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { createReadStream, createWriteStream } from 'fs';
-import { mkdir, rm, stat } from 'fs/promises';
+import { mkdir, readdir, rm, stat } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
@@ -40,6 +40,11 @@ export class ProcessVideoUseCase implements IProcessVideoUseCase {
 
             const framesDir = await this.videoExtractorService.execute(videoPath);
 
+            // Count frames
+            const frameFiles = await readdir(framesDir);
+            const frameCount = frameFiles.filter(f => f.endsWith('.png')).length;
+            this.logger.info('Frames extracted', { frameCount });
+
             const zipPath = await this.zipService.execute(framesDir);
 
             const zipKey = `output/${request.jobId}/frames.zip`;
@@ -56,6 +61,7 @@ export class ProcessVideoUseCase implements IProcessVideoUseCase {
                 jobId: request.jobId,
                 eventType: EventType.DONE,
                 zipKey,
+                frameCount,
             });
 
             this.logger.info('Video processed successfully', { jobId: request.jobId, zipKey });

@@ -113,6 +113,15 @@ main() {
     log_info "Copying package.json..."
     cp package.json lambda-package/
     
+    # Copy bin/ directory with FFmpeg
+    if [ -d "bin" ]; then
+        log_info "Copying bin/ directory (FFmpeg)..."
+        cp -r bin lambda-package/
+        log_success "FFmpeg binary included in package"
+    else
+        log_warning "bin/ directory not found. Run scripts/download-ffmpeg.sh first!"
+    fi
+    
     log_success "Package structure created"
     
     # Step 6: Create ZIP file

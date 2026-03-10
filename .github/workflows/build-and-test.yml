@@ -1,0 +1,53 @@
+name: 'CI - Build and Test'
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/build-and-test.yml'
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'Run full test suite'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  build-test:
+    name: 'Build and Test'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --ignore-scripts
+
+    - name: Generate Prisma Client
+      run: npx prisma generate
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Build
+      run: npm run build
+
+    - name: Run tests
+      run: npm run test:coverage
+
+    - name: Security audit
+      run: |
+        # Tenta corrigir vulnerabilidades automaticamente
+        npm audit fix --force || true
+        # Executa audit novamente e falha apenas em vulnerabilidades críticas
+        npm audit --audit-level high

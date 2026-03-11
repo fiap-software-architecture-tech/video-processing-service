@@ -5,4 +5,5 @@ export interface QueueProviderDTO {
     eventType: EventType;
     zipKey?: string;
     error?: string;
+    frameCount?: number;
 }

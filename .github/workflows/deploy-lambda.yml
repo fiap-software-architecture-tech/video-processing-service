@@ -1,0 +1,109 @@
+name: 🚀 Deploy Lambda
+
+on:
+  workflow_dispatch:
+    inputs:
+      lambda_function_name:
+        description: 'Lambda Function Name (from Terraform outputs)'
+        required: true
+        type: string
+  
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'tsup.config.ts'
+      - '.github/workflows/deploy-lambda.yml'
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-lambda:
+    name: Deploy Lambda Code
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 📦 Set deployment variables
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Triggered manually with inputs
+            LAMBDA_NAME="${{ inputs.lambda_function_name }}"
+            TRIGGER="manual"
+          else
+            # Triggered by push - use default values from secrets/vars
+            LAMBDA_NAME="${{ vars.LAMBDA_FUNCTION_NAME || secrets.LAMBDA_FUNCTION_NAME }}"
+            TRIGGER="push"
+            
+            # Validate that variable is set
+            if [ -z "$LAMBDA_NAME" ]; then
+              echo "❌ ERROR: Missing LAMBDA_FUNCTION_NAME variable!"
+              echo ""
+              echo "For push-triggered deployments, configure this in GitHub:"
+              echo "Settings → Secrets and variables → Actions → Variables"
+              echo ""
+              echo "Required Variable:"
+              echo "  - LAMBDA_FUNCTION_NAME (e.g., video-processing-prod)"
+              echo ""
+              echo "Get this value from the video-infra repository Terraform outputs:"
+              echo "  terraform output lambda_function_name"
+              exit 1
+            fi
+          fi
+          
+          echo "lambda_name=$LAMBDA_NAME" >> $GITHUB_OUTPUT
+          echo "trigger=$TRIGGER" >> $GITHUB_OUTPUT
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 Deployment Configuration"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "⚡ Lambda:      $LAMBDA_NAME"
+          echo "🌍 Region:      ${{ env.AWS_REGION }}"
+          echo "🎬 Triggered:   $TRIGGER"
+          echo "📦 Commit:      ${GITHUB_SHA:0:7}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: 🚀 Deploy Lambda Code
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          LAMBDA_FUNCTION_NAME: ${{ steps.vars.outputs.lambda_name }}
+        run: |
+          chmod +x scripts/deploy-lambda.sh
+          ./scripts/deploy-lambda.sh
+
+      - name: 🎉 Deployment Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ DEPLOYMENT COMPLETED SUCCESSFULLY!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "⚡ Function:    ${{ steps.vars.outputs.lambda_name }}"
+          echo "🌍 Region:      ${{ env.AWS_REGION }}"
+          echo "📦 Commit:      ${GITHUB_SHA:0:7}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "🔍 Monitor function:"
+          echo "https://console.aws.amazon.com/lambda/home?region=${{ env.AWS_REGION }}#/functions/${{ steps.vars.outputs.lambda_name }}"
+          echo ""
+          echo "📊 View logs:"
+          echo "aws logs tail /aws/lambda/${{ steps.vars.outputs.lambda_name }} --follow"
